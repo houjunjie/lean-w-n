@@ -1,0 +1,25 @@
+{
+  "name": "wechatDemo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "check.js",
+  "scripts": {
+    "start": "node app.js",
+    "ngrok": "./bin/ngrok.sh",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jie. <376969465@qq.com>",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "glob": "^7.1.3",
+    "koa": "^2.7.0",
+    "mongoose": "^5.5.1",
+    "raw-body": "^2.3.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "sha1": "^1.1.1",
+    "xml2js": "^0.4.19"
+  }
+}
