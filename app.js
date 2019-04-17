@@ -13,10 +13,10 @@ const { initSchemas, connect } = require('./app/database/init')
 	await connect(config.db);
 	
 	initSchemas();
-	const { test } = require('./wechat/index')
+	// const { test } = require('./wechat/index')
 
 	// 测试token 存储
-	await test();
+	// await test();
 	// 生成服务器实例
 	const app = new koa();
 	

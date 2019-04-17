@@ -23,13 +23,15 @@ const wechatCfg = {
 }
 
 
-exports.test = async () => {
-	const client = new Wechat(wechatCfg.wechat);
-	const data = await client.fetchAccessToken();
+// exports.test = async () => {
+// 	const client = new Wechat(wechatCfg.wechat);
+// 	const data = await client.fetchAccessToken();
 
-	console.log('data')
-	console.log(data);
-}
+// 	console.log('data')
+// 	console.log(data);
+// }
+
+exports.getWechat = () => new Wechat(wechatCfg.wechat)
 // ;(async function () {
 // 	const client = new Wechat(wechatCfg.wechat);
 // 	const data = await client.fetchAccessToken();
