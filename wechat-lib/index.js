@@ -1,3 +1,4 @@
+const fs = require('fs')
 const request = require('request-promise')
 const base = `https://api.weixin.qq.com/cgi-bin/`;
 
@@ -47,7 +48,6 @@ module.exports = class Wechat {
 		// if(this.getAccessToken) {
 		// 	data = await this.getAccessToken()
 		// }
-
 		if(!this.isValid(data, 'access_token')) {
 			data = await this.updateAccessToken()
 		}
@@ -93,7 +93,7 @@ module.exports = class Wechat {
   }
 
 	isValid (data, name) {
-    if (!data || !data[name].expires_in) {
+    if (!data || !data.expires_in) {
       return false
     }
 
@@ -130,8 +130,7 @@ module.exports = class Wechat {
 		}else {
 			form.media = fs.createReadStream(material)
 		}
-
-		let uploadUrl = `${url}sccess_token=${token}`;
+		let uploadUrl = `${url}access_token=${token}`;
 
 		// 根据素材永久性填充 token
 		if(!permanent) {
@@ -154,7 +153,6 @@ module.exports = class Wechat {
 		}else {
 			options.formData = form
 		}
-		console.log(options, 'options');
 		return options
 	}
 	
@@ -218,7 +216,7 @@ module.exports = class Wechat {
 
     return { method: 'POST', url }
 	}
-	
+
 	// 获取素材列表
   batchMaterial (token, options) {
     options.type = options.type || 'image'

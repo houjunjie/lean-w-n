@@ -36,8 +36,11 @@ module.exports = (opts, reply) => {
 			await reply.apply(ctx, [ctx, next])
 			
 			const replyBody = ctx.body;
+			console.log(replyBody, 'replyBody')
 			const msg = ctx.weixin;
 			const xml = util.tpl(replyBody, msg);
+
+			console.log(xml, 'xml')
 			ctx.status = 200;
 			ctx.type = 'application/xml'
 			ctx.body = xml;
