@@ -2,7 +2,11 @@ const fs = require('fs')
 const request = require('request-promise')
 const base = `https://api.weixin.qq.com/cgi-bin/`;
 
+const mpBase = 'https://mp.weixin.qq.com/cgi-bin/'
+const semanticUrl = 'https://api.weixin.qq.com/semantic/semproxy/search?'
+
 const api = {
+	semanticUrl,
 	accessToken: 'token?grant_type=client_credential',
 	temporary: {
     upload: base + 'media/upload?',
@@ -17,7 +21,47 @@ const api = {
     update: base + 'material/update_news?',
     count: base + 'material/get_materialcount?',
     batch: base + 'material/batchget_material?'
+	},
+	tag: {
+    create: base + 'tags/create?',
+    fetch: base + 'tags/get?',
+    update: base + 'tags/update?',
+    del: base + 'tags/delete?',
+    fetchUsers: base + 'user/tag/get?',
+    batchTag: base + 'tags/members/batchtagging?',
+    batchUnTag: base + 'tags/members/batchuntagging?',
+    getUserTags: base + 'tags/getidlist?'
+	},
+	user: {
+    fetch: base + 'user/get?',
+    remark: base + 'user/info/updateremark?',
+    info: base + 'user/info?',
+    batch: base + 'user/info/batchget?'
   },
+
+  qrcode: {
+    create: base + 'qrcode/create?',
+    show: mpBase + 'showqrcode?'
+  },
+
+  shortUrl: {
+    create: base + 'shorturl?'
+  },
+
+  ai: {
+    translate: base + 'media/voice/translatecontent?'
+  },
+
+  menu: {
+    create: base + 'menu/create?',
+    del: base + 'menu/delete?',
+    custom: base + 'menu/addconditional?',
+    fetch: base + 'menu/get?'
+  },
+
+  ticket: {
+    get: base + 'ticket/getticket?'
+  }
 }
 
 module.exports = class Wechat {
@@ -226,5 +270,181 @@ module.exports = class Wechat {
     const url = `${api.permanent.batch}access_token=${token}`
 
     return { method: 'POST', url, body: options }
+	}
+	
+	// 创建标签
+	createTag (token, name) {
+		const body = {
+			tag: {
+        name
+      }
+		}
+
+		const url = `${api.tag.create}access_token=${token}`;
+		return { method: 'POST', url, body}
+	}
+
+	// 获取全部的标签
+	fetchTags (token) {
+		const url = `${api.tag.fetch}access_token=${token}`
+
+		return { url }
+	}
+
+	// 编辑标签
+	updateTag (token, id, name) {
+		const body = {
+			tag: {
+				id,
+				name
+			}
+		}
+
+		const url = `${api.tag.update}access_token=${token}`
+
+		return { method: 'POST', url, body }
+	}
+
+	// 删除标签
+	delTag (token, id) {
+		const body = {
+			tag: {
+				id
+			}
+		}
+		const url = `${api.tag.del}access_token=${token}`
+
+		return { method: 'POST', url, body}
+	}
+
+	// 获取标签下的粉丝列表
+	fetchTagUsers (token, id, openId) {
+		const body = {
+			tagid:id,
+			next_openid: openId || ''
+		}
+		const url = `${api.tag.fetchUsers}access_token=${token}`
+
+		return {method: 'POST', url, body}
+	}
+
+	// 批量加标签和取消标签
+	batchTag (token, openidList, id, unTag) {
+		const body = {
+			openid_list: openidList,
+			tagid: id
+		}
+		let url = !unTag ? api.tag.batchTag : api.tag.batchUnTag
+    url += 'access_token=' + token
+
+    return { method: 'POST', url, body }
+	}
+
+	getUserTags(token, openId) {
+		const body = {
+      openid: openId
+    }
+
+    const url = api.tag.getUserTags + 'access_token=' + token
+
+    return { method: 'POST', url, body }
+	}
+
+	// 给用户设置别名，服务号专用
+	remarkUser(token, openId, remark){
+		const body = {
+			openid: openId,
+			remark
+		}
+
+		const url = `${api.user.remark}access_token=${token}`
+		return { method: 'POST', url, body }
+	}
+
+	// 获取粉丝列表
+  fetchUserList (token, openId) {
+		const url = `${api.user.fetch}access_token=${token}&next_openid=${openId||''}`
+		return {url}
+	}
+
+	// 获取用户详细信息
+	getUserInfo (token, openId, lan = 'zh_CN') {
+		const url = `${api.user.info}access_token=${token}&openid=${openId}&lang=${lan}`
+		return {url}
+	}
+
+	// 批量获取用户详细信息
+	fetchBatchUsers (token, openIdList) {
+		const body = {
+			user_list: openIdList
+		}
+
+		const url = `${api.user.batch}access_token=${token}`
+
+		return { method: 'POST', url, body }
+	}
+
+	// 创建二维码 Ticket
+	createQrcode (token, qr) {
+		const url = `${api.qrcode.create}access_token=${token}`;
+		const body = qr
+		return { method: "POST", url, body}
+	}
+
+	// 通过 Ticket 换取二维码
+	showQrcode (ticket) {
+		const url = `${api.qrcode.show}ticket=${encodeURI(ticket)}`
+		return url
+	}
+
+	// 长链接转短链接
+	createShortUrl (token, action = 'long2short', longurl) {
+		const body = {
+      action,
+      long_url: longurl
+		}
+		const url = `${api.shortUrl.create}access_token=${token}`
+		return { method: 'POST', url, body }
+	}
+
+	// 语义理解-查询特定的语句进行分析
+  semantic (token, semanticData) {
+    const url = api.semanticUrl + 'access_token=' + token
+    semanticData.appid = this.appID
+
+    return { method: 'POST', url, body: semanticData }
+  }
+
+  // AI 接口
+  aiTranslate (token, body, lfrom, lto) {
+    const url = api.ai.translate + 'access_token=' + token + '&lfrom=' + lfrom + '&lto=' + lto
+
+    return { method: 'POST', url, body }
+	}
+	
+	// 创建菜单和自定义菜单
+  createMenu (token, menu, rules) {
+    let url = api.menu.create + 'access_token=' + token
+
+    if (rules) {
+      url = api.menu.custom + 'access_token=' + token
+      menu.matchrule = rules
+    }
+
+    return { method: 'POST', url, body: menu }
+  }
+
+  // 删除菜单
+  deleteMenu (token) {
+    const url = api.menu.del + 'access_token=' + token
+
+    return { url }
+  }
+
+  // 获取菜单
+  fetchMenu (token) {
+    const url = api.menu.fetch + 'access_token=' + token
+
+    return { url }
   }
 }

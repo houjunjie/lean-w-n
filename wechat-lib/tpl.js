@@ -31,9 +31,9 @@ const tpl = `
       <ThumbMediaId><![CDATA[<%= content.thumbMediaId %>]]></ThumbMediaId>
     </Music>
   <% } else if (msgType === 'news') { %>
-    <ArticleCount><![CDATA[<%= content.length %>]]></ArticleCount>
+    <ArticleCount><![CDATA[<%= content.content.length %>]]></ArticleCount>
     <Articles>
-      <% content.forEach(function(item) { %>
+      <% content.content.forEach(function(item) { %>
         <item>
           <Title><![CDATA[<%= item.title %>]]></Title>
           <Description><![CDATA[<%= item.description %>]]></Description>
